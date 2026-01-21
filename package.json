@@ -1,0 +1,27 @@
+{
+  "name": "devtinder",
+  "version": "1.0.0",
+  "description": "tinder for devs",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harshmalik8940774/devTinder.git"
+  },
+  "keywords": [
+    "nodejs",
+    "javascript"
+  ],
+  "author": "Harsh Malik",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/harshmalik8940774/devTinder/issues"
+  },
+  "homepage": "https://github.com/harshmalik8940774/devTinder#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
