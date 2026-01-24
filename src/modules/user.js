@@ -8,7 +8,7 @@ const userSchema = mongoose.Schema({
   lastName: {
     type: String,
   },
-  emailID: {
+  emailId: {
     type: String,
   },
   password: {
@@ -23,4 +23,4 @@ const userSchema = mongoose.Schema({
 });
 
 //now create module of database
-module.exports = mongoose.module("User", userSchema);
+module.exports = mongoose.model("User", userSchema);
