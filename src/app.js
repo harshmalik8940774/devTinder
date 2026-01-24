@@ -6,14 +6,12 @@ const port = 3000;
 
 // post api call to add user data into database
 
+//express midleware to convert json data into js object and then store into req.body
+app.use(express.json());
+
 app.post("/signUp", async (req, res) => {
   // create a new instance of User model
-  const user = new User({
-    firstName: "harsh",
-    lastName: "malik",
-    emailId: "xxxx",
-    password: "yyy",
-  });
+  const user = new User(req.body);
 
   try {
     await user.save();
