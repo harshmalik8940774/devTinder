@@ -29,7 +29,7 @@ app.get("/user", async (req, res) => {
 
   try {
     // return only one match document from DB
-    // const user = await User.findne({ emailId: userEmail });
+    // const user = await User.findOne({ emailId: userEmail });
     // if (!user) {
     //   res.status(404).send("user not found");
     // } else {
