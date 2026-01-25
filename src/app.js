@@ -21,6 +21,42 @@ app.post("/signUp", async (req, res) => {
   }
 });
 
+//Get user by email
+
+app.get("/user", async (req, res) => {
+  //fetch the email of user from client's request
+  const userEmail = req.body.emailId;
+
+  try {
+    // return only one match document from DB
+    // const user = await User.findne({ emailId: userEmail });
+    // if (!user) {
+    //   res.status(404).send("user not found");
+    // } else {
+    //   res.send(user);
+    // }
+
+    // return array of all match documents from DB
+    const users = await User.find({ emailId: userEmail });
+    if (users.length == 0) {
+      res.status(404).send("user not found");
+    } else {
+      res.send(users);
+    }
+  } catch (err) {
+    res.status(404).send("something went wrong");
+  }
+});
+
+//Feed API-  GET/feed - get all the users from DataBase
+app.get("/user", async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.send(users);
+  } catch (err) {
+    res.status(404).send("something went wrong");
+  }
+});
 // //this request handler function is only handles GET call to /user
 // app.get("/user", (req, res) => {
 //   res.send({ firstName: "harsh", lastName: "malik" });
