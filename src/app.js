@@ -71,6 +71,27 @@ app.delete("/user", async (req, res) => {
     res.status(404).send("something went wrong");
   }
 });
+
+//Update data of user
+
+app.patch("/user", async (req, res) => {
+  const userId = req.body.userId;
+  const data = req.body;
+  try {
+    //return data after update
+    const user = await User.findByIdAndUpdate({ _id: userId }, data, {
+      returnDocument: "after",
+    });
+    //return data before update
+    // const user = await User.findByIdAndUpdate(userId, data, {
+    //   returnDocument: "before",
+    // });
+    console.log(user);
+    res.send("User updated successfully");
+  } catch (err) {
+    res.status(404).send("something went wrong");
+  }
+});
 // //this request handler function is only handles GET call to /user
 // app.get("/user", (req, res) => {
 //   res.send({ firstName: "harsh", lastName: "malik" });
