@@ -81,6 +81,8 @@ app.patch("/user", async (req, res) => {
     //return data after update
     const user = await User.findByIdAndUpdate({ _id: userId }, data, {
       returnDocument: "after",
+      //use for custom schema validator during update!
+      runValidators: true,
     });
     //return data before update
     // const user = await User.findByIdAndUpdate(userId, data, {
