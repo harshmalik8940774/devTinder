@@ -3,7 +3,7 @@ const connectDB = require("./config/database");
 const app = express();
 const User = require("./modules/user");
 const port = 3000;
-const {validateSignUpData} = require("./utils/validation");
+const { validateSignUpData } = require("./utils/validation");
 const bcrypt = require("bcrypt");
 
 // post api call to add user data into database
@@ -35,6 +35,30 @@ app.post("/signUp", async (req, res) => {
     res.send("user added successfully");
   } catch (err) {
     res.status(400).send("error saving the user " + err.message);
+  }
+});
+
+//Login - API
+
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+
+    // check whether the user is  present in DB
+
+    const user = await User.findOne({ emailId: emailId });
+    if (!user) {
+      throw new Error("Invalid credentials");
+    }
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (isPasswordValid) {
+      res.send("Login Successfully");
+    } else {
+      throw new Error("Invalid credentials");
+    }
+  } catch (err) {
+    res.status(400).send("Error" + err.message);
   }
 });
 
