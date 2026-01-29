@@ -5,11 +5,22 @@ const User = require("./modules/user");
 const port = 3000;
 const { validateSignUpData } = require("./utils/validation");
 const bcrypt = require("bcrypt");
+const { adminAuth, userAuth } = require("./middlewares/auth");
 
 // post api call to add user data into database
 
 //express midleware to convert json data into js object and then store into req.body
 app.use(express.json());
+
+app.use("/user", adminAuth);
+
+app.get("/user/connect", userAuth, (req, res) => {
+  res.send("User connected !");
+});
+
+app.get("/admin/getAllData", (req, res) => {
+  res.send("All Data sent");
+});
 
 app.post("/signUp", async (req, res) => {
   //Validation of data
