@@ -57,10 +57,15 @@ app.post("/login", async (req, res) => {
 
     if (isPasswordValid) {
       // Create JWT  token
-      const token = await jwt.sign({ _id: user._id }, "xyz");
+      const token = await jwt.sign({ _id: user._id }, "xyz", {
+        expiresIn: "7d",
+      });
       console.log(token);
       // Add the token to the cookie and send the response to the user
-      res.cookie("token", token);
+      res.cookie("token", token, {
+        expires: new Date(Date.now() + 900000),
+        httpOnly: true,
+      });
       res.send("Login Successfully");
     } else {
       throw new Error("Invalid credentials");
@@ -83,6 +88,15 @@ app.get("/profile", userAuth, async (req, res) => {
   }
 });
 
+// Sending Connection Request API
+app.post("/sendConnectionRequest", userAuth, async (req, res) => {
+  const user = req.user;
+
+  //Send a connection request
+  console.log("Send a connection request");
+
+  res.send(user.firstName + "Send the connection request!");
+});
 
 connectDB()
   .then(() => {
