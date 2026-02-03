@@ -6,7 +6,6 @@ const port = 3000;
 const { validateSignUpData } = require("./utils/validation");
 const bcrypt = require("bcrypt");
 const { userAuth } = require("./middlewares/auth");
-const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 
 // post api call to add user data into database
