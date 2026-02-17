@@ -15,6 +15,12 @@ const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 
+// Express-Router
+app.use("/",authRouter);
+app.use("/",profileRouter);
+app.use("/",requestRouter);
+
+
 connectDB()
   .then(() => {
     console.log("data base connection established");
