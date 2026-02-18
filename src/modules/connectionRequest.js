@@ -25,18 +25,23 @@ const connectionRequestSchema = new mongoose.Schema(
   },
 );
 
-//
-connectionRequestSchema.pre("save", function () {
+//use compound index to make DB query faster
+connectionRequestSchema.index({ fromUserId: 1, toUserId: 1 });
+
+// schema.pre("save") Middleware in Mongoose Schema
+connectionRequestSchema.pre("save", function (next) {
   const connectionRequest = this;
-  // check if the  fromUserId is same as toUserId
+  // Check if the fromUserId is same as toUserId
   if (connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {
-    throw new Error("cannot send connection request to yourself!");
+    throw new Error("Cannot send connection request to yourself!");
   }
+  next();
 });
 
-const connectionRequestModule = mongoose.model(
-  "connectionRequest",
-  connectionRequestSchema,
+
+const ConnectionRequestModel = new mongoose.model(
+  "ConnectionRequest",
+  connectionRequestSchema
 );
 
-module.exports = connectionRequestModule;
+module.exports = ConnectionRequestModel;
