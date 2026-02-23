@@ -73,14 +73,13 @@ userRouter.get("/feed", userAuth, async (req, res) => {
     limit = limit > 50 ? 50 : limit;
     const skip = (page - 1) * limit;
 
-
-    //find all the user connection(send+recieved)
+    //find all  connection requests (send+recieved)
     const connectionRequests = await ConnectionRequest.find({
       $or: [{ fromUserId: loggedInUser._id }, { toUserId: loggedInUser._id }],
-    }).select("fromUserId  toUserId");//select() is use to get only selected fields of documents in DB
+    }).select("fromUserId  toUserId"); //select() is use to get only selected fields of documents in DB
 
     //Use set Data-structure to store the users_id which are not show to user's feed
-const hideUsersFromFeed = new Set();
+    const hideUsersFromFeed = new Set();
     connectionRequests.forEach((req) => {
       hideUsersFromFeed.add(req.fromUserId.toString());
       hideUsersFromFeed.add(req.toUserId.toString());
