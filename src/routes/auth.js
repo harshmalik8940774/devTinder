@@ -5,32 +5,38 @@ const { validateSignUpData } = require("../utils/validation");
 const bcrypt = require("bcrypt");
 
 //SignUp-API
-authRouter.post("/signUp", async (req, res) => {
-  //Validation of data
-  validateSignUpData(req);
-
-  const { firstName, lastName, emailId, password } = req.body;
-
-  //Encrypt the password
-
-  const passwordHash = await bcrypt.hash(password, 10);
-  console.log(passwordHash);
-
-  // create a new instance of User model
-  const user = new User({
-    firstName,
-    lastName,
-    emailId,
-    password: passwordHash,
-  });
-
+authRouter.post("/signup", async (req, res) => {
   try {
-    await user.save();
-    res.send("user added successfully");
+    // Validation of data
+    validateSignUpData(req);
+
+    const { firstName, lastName, emailId, password } = req.body;
+
+    // Encrypt the password
+    const passwordHash = await bcrypt.hash(password, 10);
+    console.log(passwordHash);
+
+    //   Creating a new instance of the User model
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: passwordHash,
+    });
+
+    const savedUser = await user.save();
+    const token = await savedUser.getJWT();
+
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 8 * 3600000),
+    });
+
+    res.json({ message: "User Added successfully!", data: savedUser });
   } catch (err) {
-    res.status(400).send("error saving the user " + err.message);
+    res.status(400).send("ERROR : " + err.message);
   }
 });
+
 
 //Login - API
 authRouter.post("/login", async (req, res) => {
@@ -57,7 +63,7 @@ authRouter.post("/login", async (req, res) => {
         expires: new Date(Date.now() + 900000),
         httpOnly: true,
       });
-      res.send("Login Successfully");
+       res.send(user);
     } else {
       throw new Error("Invalid credentials");
     }
