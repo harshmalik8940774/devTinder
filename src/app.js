@@ -1,9 +1,9 @@
 const express = require("express");
 const connectDB = require("./config/database");
 const app = express();
-const port = 7777;
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+require("dotenv").config();
 
 app.use(
   cors({
@@ -32,8 +32,8 @@ connectDB()
     console.log("data base connection established");
 
     //firstly connect to database and then listen request from client side
-    app.listen(port, () => {
-      console.log("Server started running on port " + port);
+    app.listen(process.env.PORT, () => {
+      console.log("Server started running on port " + process.env.PORT);
     });
   })
   .catch((err) => {
