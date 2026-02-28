@@ -46,3 +46,5 @@ paymentRouter.post("/payment/create", userAuth, async (req, res) => {
     return res.status(500).json({ msg: err.message });
   }
 });
+
+module.exports = paymentRouter;

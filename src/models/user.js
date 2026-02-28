@@ -42,32 +42,42 @@ const userSchema = mongoose.Schema(
     },
     gender: {
       type: String,
-      //Custom schema validation(for complex checks)
-      validate(value) {
-        if (!["male", "female", "others"].includes(value)) {
-          throw new Error("Gender data is not validate");
-        }
+      enum: {
+        values: ["male", "female", "other"],
+        message: `{VALUE} is not a valid gender type`,
       },
+      // validate(value) {
+      //   if (!["male", "female", "others"].includes(value)) {
+      //     throw new Error("Gender data is not valid");
+      //   }
+      // },
+    },
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
+    membershipType: {
+      type: String,
     },
     photoUrl: {
       type: String,
-      default: "http://xyx.png",
-      validatte(value) {
+      default: "https://geographyandyou.com/images/user-profile.png",
+      validate(value) {
         if (!validator.isURL(value)) {
-          throw new Error("Invalid Photo URL " + value);
+          throw new Error("Invalid Photo URL: " + value);
         }
       },
     },
     about: {
       type: String,
-      default: "this is a default about of the user!",
+      default: "This is a default about of the user!",
     },
     skills: {
       type: [String],
     },
   },
   {
-    timeStamps: true,
+    timestamps: true,
   },
 );
 

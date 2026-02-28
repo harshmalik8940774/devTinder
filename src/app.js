@@ -3,11 +3,12 @@ const connectDB = require("./config/database");
 const app = express();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const http = require("http");
 require("dotenv").config();
 
 app.use(
   cors({
-    origin: "http://localhost:5174",
+    origin: "http://localhost:5175",
     credentials: true,
   }),
 );
@@ -29,12 +30,15 @@ app.use("/", requestRouter);
 app.use("/", userRouter);
 app.use("/", paymentRouter);
 
+const server = http.createServer(app);
+initializeSocket(server);
+
 connectDB()
   .then(() => {
     console.log("data base connection established");
 
     //firstly connect to database and then listen request from client side
-    app.listen(process.env.PORT, () => {
+    server.listen(process.env.PORT, () => {
       console.log("Server started running on port " + process.env.PORT);
     });
   })
