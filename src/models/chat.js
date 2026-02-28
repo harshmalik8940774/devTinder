@@ -19,7 +19,7 @@ const chatSchema = new mongoose.Schema({
   participants: [
     { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   ],
-  //For each message,defining a schema
+  // Array of messageSchema to store messages in the chat
   messages: [messageSchema],
 });
 
