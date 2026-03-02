@@ -23,7 +23,7 @@ const initializeSocket = (server) => {
   io.on("connection", (socket) => {
     // Listen for "joinChat" event to join a chat room
     socket.on("joinChat", ({ firstName, userId, targetUserId }) => {
-        // Join the user to a unique room based on their user IDs
+      // Join the user to a unique room based on their user IDs
       const roomId = getSecretRoomId(userId, targetUserId);
       console.log(firstName + " joined Room : " + roomId);
       socket.join(roomId);
@@ -37,7 +37,29 @@ const initializeSocket = (server) => {
           const roomId = getSecretRoomId(userId, targetUserId);
           console.log(firstName + " " + text);
 
-         
+          //Check if userId & targetUserId are friends
+          const isFriend = await ConnectionRequest.findOne({
+            $or: [
+              {
+                fromUserId: userId,
+                toUserId: targetUserId,
+                status: "accepted",
+              },
+              {
+                fromUserId: targetUserId,
+                toUserId: userId,
+                status: "accepted",
+              },
+            ],
+          });
+
+          if (!isFriend) {
+            return socket.emit(
+              "errorMessage",
+              "You can only message your friends",
+            );
+          }
+
           let chat = await Chat.findOne({
             participants: { $all: [userId, targetUserId] },
           });
@@ -59,10 +81,11 @@ const initializeSocket = (server) => {
           io.to(roomId).emit("messageReceived", { firstName, lastName, text });
         } catch (err) {
           console.log(err);
+          socket.emit("errorMessage", "Something went wrong");
         }
-      }
+      },
     );
-// Handle disconnection
+    // Handle disconnection
     socket.on("disconnect", () => {});
   });
 };
