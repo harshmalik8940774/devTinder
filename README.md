@@ -1,146 +1,211 @@
-# DevTinder Backend
+# 🚀 DevTinder Backend
 
-### Scalable Developer Networking Platform with Real-Time Chat
+### Scalable Developer Networking Platform with Real-Time Chat & Payment Integration
 
-DevTinder Backend is a production-ready server-side application that
-powers a developer networking platform where users can connect, send
-requests, and communicate in real time.
+DevTinder Backend is a production-ready backend application powering a
+developer networking platform where users can connect, communicate in
+real time, and upgrade to premium membership.
 
-This project demonstrates strong understanding of backend engineering,
-authentication systems, real-time communication, database modeling,
-payment workflows, and cloud deployment.
-
-------------------------------------------------------------------------
-
-## Project Overview
-
-DevTinder allows developers to:
-
--   Create and manage profiles\
--   Send and receive connection requests\
--   Accept or reject requests\
--   View a personalized developer feed\
--   Chat in real time\
--   Upgrade to membership using online payment
-
-The backend handles authentication, business logic, chat system, payment
-verification, and secure data storage.
+This project demonstrates strong backend engineering fundamentals
+including authentication, authorization, real-time systems, secure
+payment workflows, database modeling, and cloud deployment.
 
 ------------------------------------------------------------------------
 
-## Key Features
+## 📌 Project Overview
 
-### 1. Authentication & Authorization
+DevTinder enables developers to:
 
--   User signup and login\
--   Password hashing using bcrypt\
--   JWT-based authentication\
--   Protected routes using middleware\
--   Token validation for both REST APIs and WebSocket connections
+-   Create and manage profiles
+-   Send and receive connection requests
+-   Accept or reject requests
+-   View a personalized developer feed
+-   Chat in real time
+-   Upgrade to premium membership via online payment
 
-------------------------------------------------------------------------
-
-### 2. Profile Management
-
--   View profile\
--   Edit profile\
--   Secure user-specific data access
+The backend is responsible for handling authentication, business logic,
+real-time communication, payment verification, and secure data
+persistence.
 
 ------------------------------------------------------------------------
 
-### 3. Connection System
+## ✨ Core Features
 
--   Send connection request\
--   Accept or reject request\
--   Maintain connection relationships\
--   Filter feed to exclude existing connections
+### 🔐 1. Authentication & Authorization
 
-------------------------------------------------------------------------
-
-### 4. Real-Time Chat (WebSockets)
-
--   Authenticated WebSocket connection\
--   Bi-directional communication\
--   Instant message delivery\
--   Messages stored in MongoDB\
--   Persistent chat history
-
-Concepts demonstrated:
-
--   Event-driven architecture\
--   Stateful connections\
--   Real-time communication systems\
--   Scalable backend thinking
+-   User Signup & Login
+-   Password hashing using bcrypt
+-   JWT-based authentication
+-   Protected REST APIs using middleware
+-   Token validation for WebSocket connections
 
 ------------------------------------------------------------------------
 
-### 5. Membership & Payment Integration
+### 👤 2. Profile Management
 
--   Razorpay order creation\
--   Secure webhook endpoint\
--   Signature verification\
--   Membership upgrade logic\
--   Server-side payment validation
+-   View user profile
+-   Edit profile details
+-   Update password
+-   Secure access to user-specific data
 
 ------------------------------------------------------------------------
 
-### 6. Deployment & Production Setup
+### 🤝 3. Connection System
 
--   Hosted on AWS EC2\
--   Nginx reverse proxy configuration\
--   Environment variable management\
+-   Send connection request
+-   Accept / Reject request
+-   Maintain connection relationships
+-   Feed filtering to exclude existing connections
+-   Duplicate request prevention logic
+
+------------------------------------------------------------------------
+
+### 💬 4. Real-Time Chat System
+
+-   Authenticated WebSocket connections
+-   Private one-to-one chat rooms
+-   Deterministic room generation using SHA-256 hashing
+-   Friend validation before allowing messaging
+-   Persistent message storage in MongoDB
+-   Chat history retrieval API
+
+------------------------------------------------------------------------
+
+### 💳 5. Membership & Payment Integration
+
+-   Dynamic order creation
+-   Secure webhook endpoint
+-   Webhook signature verification
+-   Payment status tracking in database
+-   Automatic premium upgrade on successful payment
+-   Premium membership verification API
+
+------------------------------------------------------------------------
+
+### ☁️ 6. Deployment & Production Setup
+
+-   Hosted on AWS EC2
+-   Nginx reverse proxy configuration
+-   Environment variable management
+-   Secure key handling
 -   Production-ready server configuration
 
 ------------------------------------------------------------------------
 
-## Tech Stack
+## 🛠 Tech Stack
 
-Backend: - Node.js - Express.js
+### Backend
 
-Database: - MongoDB - Mongoose
+-   Node.js
+-   Express.js
 
-Authentication: - JWT (JSON Web Token)
+### Database
 
-Security: - bcrypt - Middleware validation
+-   MongoDB
+-   Mongoose
 
-Real-Time Communication: - WebSockets (ws / socket.io)
+### Authentication & Security
 
-Payments: - Razorpay
+-   JWT (JSON Web Token)
+-   bcrypt
+-   Custom middleware validation
 
-Deployment: - AWS EC2 - Nginx
+### Real-Time Communication
 
-------------------------------------------------------------------------
+-   Socket.IO
 
-## System Architecture
+### Payments
 
-REST Layer: Client → Express Server → MongoDB
+-   Razorpay
 
-Real-Time Layer: Client ↔ WebSocket Server ↔ MongoDB
+### Deployment
 
--   REST APIs handle authentication, profile management, and connection
-    logic.
--   WebSocket server manages real-time chat communication.
--   MongoDB stores users, connections, and chat messages.
--   Razorpay handles membership payments with secure verification.
-
-------------------------------------------------------------------------
-
-
-## Engineering Skills Demonstrated
-
--   RESTful API Design\
--   Authentication & Authorization\
--   Middleware Architecture\
--   Database Schema Design\
--   Real-Time Systems Implementation\
--   Secure Payment Integration\
--   Cloud Deployment\
--   Production Debugging
+-   AWS EC2
+-   Nginx
 
 ------------------------------------------------------------------------
 
-## Author
+## 🏗 System Architecture
+
+### REST Layer
+
+Client → Express Server → MongoDB
+
+### Real-Time Layer
+
+Client ↔ WebSocket Server ↔ MongoDB
+
+### Payment Flow
+
+Client → Backend (Create Order) → Payment Gateway → Webhook → Backend →
+Database Update
+
+------------------------------------------------------------------------
+
+## 📡 API Overview
+
+### Auth Routes
+
+-   POST /signup
+-   POST /login
+-   POST /logout
+
+### Profile Routes
+
+-   GET /profile/view
+-   PATCH /profile/edit
+-   PATCH /profile/password
+
+### Connection Routes
+
+-   POST /request/send/:status/:userId
+-   POST /request/review/:status/:requestId
+
+Status values: - interested - ignored - accepted - rejected
+
+### User Routes
+
+-   GET /user/requests/received
+-   GET /user/connections
+-   GET /user/feed
+
+------------------------------------------------------------------------
+
+## ⚙️ Installation & Setup
+
+1.  Clone the repository
+2.  Install dependencies
+
+npm install
+
+3.  Create a `.env` file and configure:
+
+PORT= MONGODB_URI= JWT_SECRET= RAZORPAY_KEY_ID= RAZORPAY_KEY_SECRET=
+RAZORPAY_WEBHOOK_SECRET=
+
+4.  Start the server
+
+npm run dev
+
+------------------------------------------------------------------------
+
+## 📊 Engineering Skills Demonstrated
+
+-   RESTful API Design
+-   JWT Authentication & Authorization
+-   Middleware Architecture
+-   MongoDB Schema Design
+-   Real-Time Systems Implementation
+-   Secure Webhook Handling
+-   Payment Workflow Integration
+-   Cloud Deployment
+-   Production Debugging & Error Handling
+
+------------------------------------------------------------------------
+
+## 👨‍💻 Author
 
 Harsh Malik\
 Engineering Student \| Backend Developer\
-Interested in scalable backend systems and real-time architectures
+Interested in scalable backend systems, real-time architectures, and
+distributed applications.
