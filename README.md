@@ -171,24 +171,6 @@ Status values: - interested - ignored - accepted - rejected
 
 ------------------------------------------------------------------------
 
-## ⚙️ Installation & Setup
-
-1.  Clone the repository
-2.  Install dependencies
-
-npm install
-
-3.  Create a `.env` file and configure:
-
-PORT= MONGODB_URI= JWT_SECRET= RAZORPAY_KEY_ID= RAZORPAY_KEY_SECRET=
-RAZORPAY_WEBHOOK_SECRET=
-
-4.  Start the server
-
-npm run dev
-
-------------------------------------------------------------------------
-
 ## 📊 Engineering Skills Demonstrated
 
 -   RESTful API Design
