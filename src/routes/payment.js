@@ -5,6 +5,10 @@ const razorpayInstance = require("../utils/razorpay");
 const Payment = require("../models/payment");
 const User = require("../models/user");
 const { membershipAmount } = require("../utils/constants");
+const {
+  validateWebhookSignature,
+} = require("razorpay/dist/utils/razorpay-utils");
+
 
 // Route to create a new order(dynamically)
 paymentRouter.post("/payment/create", userAuth, async (req, res) => {

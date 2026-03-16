@@ -37,7 +37,6 @@ authRouter.post("/signup", async (req, res) => {
   }
 });
 
-
 //Login - API
 authRouter.post("/login", async (req, res) => {
   try {
@@ -63,7 +62,7 @@ authRouter.post("/login", async (req, res) => {
         expires: new Date(Date.now() + 900000),
         httpOnly: true,
       });
-       res.send(user);
+      res.send(user);
     } else {
       throw new Error("Invalid credentials");
     }

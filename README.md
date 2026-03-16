@@ -29,6 +29,50 @@ persistence.
 
 ---
 
+## 🏁 Getting Started
+
+### Prerequisites
+
+- Node.js (LTS recommended)
+- MongoDB instance (local or cloud)
+- Razorpay account (for payments)
+- AWS account (for SES email, if you use it in production)
+
+### Installation
+
+```bash
+git clone https://github.com/harshmalik8940774/devTinder.git
+cd devTinderBack
+npm install
+```
+
+### Environment Variables
+
+Create a `.env` file in the project root and configure:
+
+```bash
+PORT=7777
+DB_CONNECTION_SECRET=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+
+AWS_ACCESS_KEY=your_aws_access_key
+AWS_SECRET_KEY=your_aws_secret_key
+
+RAZORPAY_KEY_ID=your_razorpay_key_id
+RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+RAZORPAY_WEBHOOK_SECRET=your_razorpay_webhook_secret
+```
+
+### Run the Server
+
+```bash
+npm run dev
+# or
+npm start
+```
+
+---
+
 ## ✨ Core Features
 
 ### 🔐 1. Authentication & Authorization
@@ -36,6 +80,7 @@ persistence.
 - User Signup & Login
 - Password hashing using bcrypt
 - JWT-based authentication
+- JWT sent back and stored in cookies for authenticated requests (HTTP-only for login)
 - Protected REST APIs using middleware
 - Token validation for WebSocket connections
 
@@ -146,28 +191,33 @@ Database Update
 
 ### Auth Routes
 
-- POST /signup
-- POST /login
-- POST /logout
+- POST `/signup`
+- POST `/login`
+- POST `/logout`
 
 ### Profile Routes
 
-- GET /profile/view
-- PATCH /profile/edit
-- PATCH /profile/password
+- GET `/profile/view`
+- PATCH `/profile/edit`
+- PATCH `/profile/password`
 
 ### Connection Routes
 
-- POST /request/send/:status/:userId
-- POST /request/review/:status/:requestId
+- POST `/request/send/:status/:userId`
+- POST `/request/review/:status/:requestId`
 
-Status values: - interested - ignored - accepted - rejected
+Status values:
+
+- `interested`
+- `ignored`
+- `accepted`
+- `rejected`
 
 ### User Routes
 
-- GET /user/requests/received
-- GET /user/connections
-- GET /user/feed
+- GET `/user/requests/received`
+- GET `/user/connections`
+- GET `/feed`
 
 ---
 
