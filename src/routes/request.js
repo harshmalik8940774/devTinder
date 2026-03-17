@@ -63,7 +63,8 @@ requestRouter.post(
         data,
       });
     } catch (err) {
-      res.status(400).send("ERROR: " + err.message);
+      // res.status(400).send("ERROR: " + err.message);
+      next(err); // Passes to global errorHandler
     }
   },
 );
@@ -99,7 +100,8 @@ requestRouter.post(
 
       res.json({ message: "Connection request " + status, data });
     } catch (err) {
-      res.status(400).send("ERROR: " + err.message);
+      // res.status(400).send("ERROR: " + err.message);
+      next(err); // Passes to global errorHandler
     }
   },
 );

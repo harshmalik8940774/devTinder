@@ -23,7 +23,8 @@ userRouter.get("/user/requests/received", userAuth, async (req, res) => {
       data: connectionRequests,
     });
   } catch (err) {
-    req.statusCode(400).send("ERROR: " + err.message);
+    // req.statusCode(400).send("ERROR: " + err.message);
+    next(err); // Passes to global errorHandler
   }
 });
 
@@ -53,7 +54,8 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
 
     res.json({ data });
   } catch (err) {
-    res.status(400).send({ message: err.message });
+    // res.status(400).send({ message: err.message });
+    next(err); // Passes to global errorHandler
   }
 });
 
@@ -98,7 +100,8 @@ userRouter.get("/feed", userAuth, async (req, res) => {
 
     res.json({ data: users });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    // res.status(400).json({ message: err.message });
+    next(err); // Passes to global errorHandler
   }
 });
 module.exports = userRouter;

@@ -50,7 +50,8 @@ paymentRouter.post("/payment/create", userAuth, async (req, res) => {
       keyId: process.env.RAZORPAY_KEY_ID,
     });
   } catch (err) {
-    return res.status(500).json({ msg: err.message });
+    // return res.status(500).json({ msg: err.message });
+    next(err); // Passes to global errorHandler
   }
 });
 
@@ -92,7 +93,8 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
     // return success response to razorpay
     return res.status(200).json({ msg: "Webhook received successfully" });
   } catch (err) {
-    return res.status(500).json({ msg: err.message });
+    // return res.status(500).json({ msg: err.message });
+    next(err); // Passes to global errorHandler
   }
 });
 

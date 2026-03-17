@@ -12,7 +12,8 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
 
     res.send(user);
   } catch (err) {
-    res.status(404).send("Error" + err.message);
+    // res.status(404).send("Error" + err.message);
+    next(err); // Passes to global errorHandler
   }
 });
 
@@ -37,7 +38,8 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
       data: loggedInUser,
     });
   } catch (err) {
-    res.status(404).send("Error" + err.message);
+    // res.status(404).send("Error" + err.message);
+    next(err); // Passes to global errorHandler
   }
 });
 
