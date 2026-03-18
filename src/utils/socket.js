@@ -1,6 +1,7 @@
 const socket = require("socket.io");
 const crypto = require("crypto");
 const { Chat } = require("../models/chat");
+const { socketAuth } = require("../middlewares/socketAuth");
 const ConnectionRequest = require("../models/connectionRequest");
 
 // Generate a unique room ID for two users using their user IDs
@@ -19,23 +20,30 @@ const initializeSocket = (server) => {
     },
   });
 
+  // APPLY AUTH MIDDLEWARE
+  io.use(socketAuth);
+
   // Handle Socket.IO connections
   io.on("connection", (socket) => {
     // Listen for "joinChat" event to join a chat room
-    socket.on("joinChat", ({ firstName, userId, targetUserId }) => {
+    socket.on("joinChat", ({ targetUserId }) => {
+      const userId = socket.user._id;
       // Join the user to a unique room based on their user IDs
       const roomId = getSecretRoomId(userId, targetUserId);
-      console.log(firstName + " joined Room : " + roomId);
+      console.log(socket.user.firstName + " joined Room : " + roomId);
       socket.join(roomId);
     });
 
     socket.on(
       "sendMessage",
-      async ({ firstName, lastName, userId, targetUserId, text }) => {
+      async ({targetUserId, text }) => {
+        const userId = socket.user._id;
+        const { firstName, lastName } = socket.user;
+        
         // Save messages to the database
         try {
           const roomId = getSecretRoomId(userId, targetUserId);
-          console.log(firstName + " " + text);
+          console.log(socket.user.firstName + " " + text);
 
           //Check if userId & targetUserId are friends
           const isFriend = await ConnectionRequest.findOne({
