@@ -5,7 +5,7 @@ const { Chat } = require("../models/chat");
 const chatRouter = express.Router();
 
 //API to get all chats of loggedIn user
-chatRouter.get("/chat/:targetUserId", userAuth, async (req, res) => {
+chatRouter.get("/chat/:targetUserId", userAuth, async (req, res,next) => {
   const { targetUserId } = req.params;
   const userId = req.user._id;
 

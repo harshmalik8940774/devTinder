@@ -11,7 +11,7 @@ const sendEmail = require("../utils/sendEmail");
 requestRouter.post(
   "/request/send/:status/:toUserId",
   userAuth,
-  async (req, res) => {
+  async (req, res,next) => {
     try {
       const fromUserId = req.user._id;
       const toUserId = req.params.toUserId;
@@ -73,7 +73,7 @@ requestRouter.post(
 requestRouter.post(
   "/request/review/:status/:requestId",
   userAuth,
-  async (req, res) => {
+  async (req, res,next) => {
     try {
       const loggedInUser = req.user;
       const { status, requestId } = req.params;

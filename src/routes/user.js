@@ -8,7 +8,7 @@ const User = require("../models/user");
 const USER_SAFE_DATA = "firstName lastName photoUrl age gender about skills";
 
 //Get all the pending request for the loggedIn user
-userRouter.get("/user/requests/received", userAuth, async (req, res) => {
+userRouter.get("/user/requests/received", userAuth, async (req, res,next) => {
   try {
     const loggedInUser = req.user;
 
@@ -29,7 +29,7 @@ userRouter.get("/user/requests/received", userAuth, async (req, res) => {
 });
 
 //Connection Request API
-userRouter.get("/user/connections", userAuth, async (req, res) => {
+userRouter.get("/user/connections", userAuth, async (req, res,next) => {
   try {
     const loggedInUser = req.user;
 
@@ -60,7 +60,7 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
 });
 
 // User-Feed-API
-userRouter.get("/feed", userAuth, async (req, res) => {
+userRouter.get("/feed", userAuth, async (req, res,next) => {
   try {
     //User should see all the other user cards except-
     //0. his own card

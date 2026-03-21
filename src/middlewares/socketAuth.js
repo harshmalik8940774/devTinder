@@ -7,7 +7,7 @@ const socketAuth = async (socket, next) => {
     const token = socket.handshake.auth?.token;
 
     if (!token) {
-      return next(new Error("Please Login!"));
+      throw new Error("Please Login!");
     }
 
     // Validate the token

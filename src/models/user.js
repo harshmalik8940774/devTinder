@@ -84,6 +84,12 @@ const userSchema = mongoose.Schema(
 //Mongoose Schema Methods(helpers methods).
 //And never use Arrow method to create it.
 
+//Use to hash the password
+userSchema.methods.hashPassword = async function (password) {
+  const passwordHash = await bcrypt.hash(password, 10);
+  return passwordHash;
+};
+
 // Use to create JWT Token
 userSchema.methods.getJWT = async function () {
   const user = this;

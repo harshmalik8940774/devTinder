@@ -11,7 +11,7 @@ const {
 
 
 // Route to create a new order(dynamically)
-paymentRouter.post("/payment/create", userAuth, async (req, res) => {
+paymentRouter.post("/payment/create", userAuth, async (req, res,next) => {
   try {
     const { membershipType } = req.body;
     const { firstName, lastName, emailId } = req.user;
@@ -56,7 +56,7 @@ paymentRouter.post("/payment/create", userAuth, async (req, res) => {
 });
 
 // Razorpay will send a post request to this endpoint whenever payment is captured or failed
-paymentRouter.post("/payment/webhook", async (req, res) => {
+paymentRouter.post("/payment/webhook", async (req, res,next) => {
   try {
     // validate the webhook signature
     console.log("Webhook Called");
@@ -99,7 +99,7 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
 });
 
 //route to verify if user is premium or not
-paymentRouter.get("/premium/verify", userAuth, async (req, res) => {
+paymentRouter.get("/premium/verify", userAuth, async (req, res,next) => {
   const user = req.user;
   if (!req.user.isPremium) {
     return res.status(403).json({

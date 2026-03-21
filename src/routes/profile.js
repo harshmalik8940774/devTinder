@@ -4,7 +4,7 @@ const { userAuth } = require("../middlewares/auth");
 const { validateEditProfileData } = require("../utils/validation");
 
 //profileView-API
-profileRouter.get("/profile/view", userAuth, async (req, res) => {
+profileRouter.get("/profile/view", userAuth, async (req, res,next) => {
   try {
     // //read cookie from request
     // const cookies = req.cookies;
@@ -18,7 +18,7 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
 });
 
 //profileEdit-API
-profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
+profileRouter.patch("/profile/edit", userAuth, async (req, res,next) => {
   try {
     //Data validatiion
     if (!validateEditProfileData(req)) {
@@ -42,5 +42,23 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
     next(err); // Passes to global errorHandler
   }
 });
+
+// Forgot password API
+profileRouter.patch("/profile/password", userAuth, async (req, res, next) => {
+  try {
+    const { newPassword } = req.body;
+    const user = req.user; 
+    
+    // Just update password
+    user.password = await user.hashPassword(newPassword);
+    // user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+    
+    res.json({ message: "Password updated!" });
+  } catch (err) {
+    next(err);
+  }
+});
+
 
 module.exports = profileRouter;

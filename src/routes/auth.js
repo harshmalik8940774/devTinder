@@ -5,7 +5,7 @@ const { validateSignUpData } = require("../utils/validation");
 const bcrypt = require("bcrypt");
 
 //SignUp-API
-authRouter.post("/signup", async (req, res) => {
+authRouter.post("/signup", async (req, res,next) => {
   try {
     // Validation of data
     validateSignUpData(req);
@@ -13,7 +13,8 @@ authRouter.post("/signup", async (req, res) => {
     const { firstName, lastName, emailId, password } = req.body;
 
     // Encrypt the password
-    const passwordHash = await bcrypt.hash(password, 10);
+    // const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = await user.hashPassword(password);
     console.log(passwordHash);
 
     //   Creating a new instance of the User model
@@ -39,7 +40,7 @@ authRouter.post("/signup", async (req, res) => {
 });
 
 //Login - API
-authRouter.post("/login", async (req, res) => {
+authRouter.post("/login", async (req, res,next) => {
   try {
     const { emailId, password } = req.body;
 
@@ -74,7 +75,6 @@ authRouter.post("/login", async (req, res) => {
 });
 
 //Logout - API
-
 authRouter.post("/logout", async (req, res) => {
   res.cookie("token", null, {
     expires: new Date(Date.now()),
