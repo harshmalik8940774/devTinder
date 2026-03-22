@@ -5,8 +5,15 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const http = require("http");
 const rateLimit = require("express-rate-limit");
+const redis = require("redis");
 
 require("dotenv").config();
+
+const client = redis.createClient({
+  url: "redis://localhost:6379",
+});
+client.connect().catch(console.error);
+app.locals.redisClient = client;
 
 //middlewares
 const logger = require("./middlewares/logger");
@@ -23,27 +30,22 @@ const chatRouter = require("./routes/chat");
 //socket
 const initializeSocket = require("./utils/socket");
 
-
 // CORS
 app.use(
   cors({
     origin: "http://localhost:5173",
     credentials: true,
-  })
+  }),
 );
-
 
 // convert JSON request to JS object
 app.use(express.json());
 
-
 // cookie parser
 app.use(cookieParser());
 
-
 // request logger
 app.use(logger);
-
 
 // rate limiter (API protection)
 const limiter = rateLimit({
@@ -54,7 +56,6 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-
 // routes
 app.use("/", authRouter);
 app.use("/", profileRouter);
@@ -63,18 +64,14 @@ app.use("/", userRouter);
 app.use("/", paymentRouter);
 app.use("/", chatRouter);
 
-
 // global error handler
 app.use(errorHandler);
-
 
 // create HTTP server
 const server = http.createServer(app);
 
-
 // initialize socket
 initializeSocket(server);
-
 
 // database connection
 connectDB()

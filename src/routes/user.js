@@ -8,7 +8,7 @@ const User = require("../models/user");
 const USER_SAFE_DATA = "firstName lastName photoUrl age gender about skills";
 
 //Get all the pending request for the loggedIn user
-userRouter.get("/user/requests/received", userAuth, async (req, res,next) => {
+userRouter.get("/user/requests/received", userAuth, async (req, res, next) => {
   try {
     const loggedInUser = req.user;
 
@@ -29,7 +29,7 @@ userRouter.get("/user/requests/received", userAuth, async (req, res,next) => {
 });
 
 //Connection Request API
-userRouter.get("/user/connections", userAuth, async (req, res,next) => {
+userRouter.get("/user/connections", userAuth, async (req, res, next) => {
   try {
     const loggedInUser = req.user;
 
@@ -60,7 +60,7 @@ userRouter.get("/user/connections", userAuth, async (req, res,next) => {
 });
 
 // User-Feed-API
-userRouter.get("/feed", userAuth, async (req, res,next) => {
+userRouter.get("/feed", userAuth, async (req, res, next) => {
   try {
     //User should see all the other user cards except-
     //0. his own card
@@ -68,12 +68,21 @@ userRouter.get("/feed", userAuth, async (req, res,next) => {
     //2. ignored peoples
     //3. already sent the connection request
 
+    const client = req.app.locals.redisClient;
     const loggedInUser = req.user;
 
     const page = parseInt(req.query.page) || 1;
     let limit = parseInt(req.query.limit) || 10;
     limit = limit > 50 ? 50 : limit;
     const skip = (page - 1) * limit;
+    const cacheKey = `feed:${loggedInUser._id}:p${page}:l${limit}`;
+
+    //  CHECK CACHE FIRST
+    let cachedData = await client.get(cacheKey);
+    if (cachedData) {
+      console.log("✅ FEED CACHE HIT!");
+      return res.json({ data: JSON.parse(cachedData) });
+    }
 
     //find all  connection requests (send+recieved)
     const connectionRequests = await ConnectionRequest.find({
@@ -98,6 +107,9 @@ userRouter.get("/feed", userAuth, async (req, res,next) => {
       .skip(skip)
       .limit(limit);
 
+    //  SAVE TO CACHE
+    await client.set(cacheKey, JSON.stringify(users), { EX: 20 });
+
     res.json({ data: users });
   } catch (err) {
     // res.status(400).json({ message: err.message });
@@ -105,4 +117,3 @@ userRouter.get("/feed", userAuth, async (req, res,next) => {
   }
 });
 module.exports = userRouter;
-
