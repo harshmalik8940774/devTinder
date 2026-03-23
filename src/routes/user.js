@@ -80,7 +80,7 @@ userRouter.get("/feed", userAuth, async (req, res, next) => {
     //  CHECK CACHE FIRST
     let cachedData = await client.get(cacheKey);
     if (cachedData) {
-      console.log("✅ FEED CACHE HIT!");
+      console.log("FEED CACHE HIT!");
       return res.json({ data: JSON.parse(cachedData) });
     }
 

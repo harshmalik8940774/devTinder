@@ -11,7 +11,7 @@ profileRouter.get("/profile/view", userAuth, async (req, res, next) => {
 
     let cachedData = await client.get(cacheKey);
     if (cachedData) {
-      console.log("✅ PROFILE CACHE HIT!");
+      console.log("PROFILE CACHE HIT!");
       return res.send(JSON.parse(cachedData));
     }
 
@@ -40,6 +40,16 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res, next) => {
     Object.keys(req.body).forEach((key) => (loggedInUser[key] = req.body[key]));
 
     await loggedInUser.save();
+
+    // 3. INVALIDATE CACHES
+    const client = req.app.locals.redisClient;
+    await client.del(`profile:${loggedInUser._id}`); // Profile cache gone
+
+    const feedKeys = await client.keys("feed:*");
+    if (feedKeys.length > 0) {
+      await client.del(feedKeys); // All feed caches gone
+      console.log(`Invalidated ${feedKeys.length} feed caches`);
+    }
 
     // It is used to send res to the client in proper way
     res.json({
