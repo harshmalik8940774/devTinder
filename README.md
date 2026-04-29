@@ -170,20 +170,96 @@ npm start
 
 ---
 
-## 🏗 System Architecture
+## 🏗 Architecture
 
-### REST Layer
+`src/app.js` is the main server composition layer: it configures Express middleware, mounts REST routers, starts Socket.IO on the same HTTP server, initializes Redis caching, and starts listening after MongoDB connects (`src/config/database.js`).
 
-Client → Express Server → MongoDB
+### Architecture diagram
 
-### Real-Time Layer
+```text
+┌───────────┐  HTTP (cookies + JWT)  ┌────────────────────────┐  Mongo queries  ┌───────────┐
+│  Client   │ ─────────────────────► │ Express (REST routes)  │ ──────────────► │  MongoDB  │
+│  UI/Web   │                          │ middlewares/auth +     │                  │ Mongoose  │
+└───────────┘                          │ errorHandler + routes  │                  └───────────┘
+        ▲                               └───────────┬────────────┘
+        │ Redis cache hit                             │
+        │                                               ▼
+        │                                   ┌────────────────────────┐
+        │                                   │ Redis (feed/profile)   │
+        │                                   └────────────────────────┘
+        │
+        │  Socket.IO connect (token)        ┌────────────────────────┐   read/write   ┌───────────┐
+        └────────────────────────────────► │ Socket.IO + socketAuth│ ─────────────►│  MongoDB  │
+                                           │ joinChat (SHA-256 room)│                 │  Chat +   │
+                                           └───────────┬────────────┘                 │ Connection│
+                                                       │ sendMessage (friend check)
+                                                       ▼
+                                           ┌────────────────────────┐
+                                           │ Chat room (roomId)    │
+                                           └───────────┬────────────┘
+                                                       │ emits messageReceived
+                                                       ▼
+                                             ┌─────────────────────┐
+                                             │ Connected clients   │
+                                             └─────────────────────┘
 
-Client ↔ WebSocket Server ↔ MongoDB
+Payment (Razorpay + webhook):
+┌───────────┐  POST /payment/create   ┌────────────────────────┐  create order  ┌───────────┐
+│  Client   │ ───────────────────────► │ Express (payment route)│ ─────────────►│ Razorpay  │
+└───────────┘                            └───────────┬────────────┘                 └─────┬─────┘
+                                                       │ save Payment (orderId + notes)
+                                                       ▼
+                                                ┌───────────┐
+                                                │  MongoDB   │
+                                                └─────┬─────┘
+                                                      │ POST /payment/webhook (signed)
+                                                      ▼
+                                             ┌────────────────────────┐  verify signature
+                                             │ Express /payment/webhook│◄────────────────── Razorpay
+                                             └───────────┬────────────┘
+                                                         │ update Payment + User.isPremium
+                                                         ▼
+                                                ┌───────────┐
+                                                │  MongoDB   │
+                                                └───────────┘
+```
 
-### Payment Flow
+### High-level component responsibilities
+- `src/routes/*`: HTTP endpoints for auth, profile, connection requests, feed/connections, payments, and chat history.
+- `src/middlewares/*`: JWT auth for REST (`src/middlewares/auth.js`), JWT auth for Socket.IO (`src/middlewares/socketAuth.js`), request logging, and global error handling.
+- `src/utils/socket.js`: real-time chat (room generation, friendship validation, message persistence + broadcast).
+- `src/utils/razorpay.js`: Razorpay client configuration.
+- `src/models/*`: MongoDB schemas (User, ConnectionRequest, Chat, Payment).
+- Redis: short-lived caching for feed and profile.
 
-Client → Backend (Create Order) → Payment Gateway → Webhook → Backend →
-Database Update
+### REST request flow (HTTP)
+Client → Express middleware (CORS, JSON parsing, cookie parsing, logger, rate-limit)
+→ route handler in `src/routes/*`
+→ optional auth middleware (`req.user` attached)
+→ MongoDB reads/writes via `src/models/*`
+→ optional Redis caching (`req.app.locals.redisClient`)
+→ JSON response (or error via `src/middlewares/errorHandler.js`)
+
+### Real-time flow (Socket.IO chat)
+Client connects to Socket.IO
+→ `socketAuth` validates JWT (`socket.handshake.auth.token`) and attaches `socket.user`
+→ `joinChat` derives a deterministic room id (SHA-256 of sorted user ids) and joins
+→ `sendMessage` checks friendship via `ConnectionRequest` (status `accepted`)
+→ saves message into the pair’s `Chat` document in MongoDB
+→ emits `messageReceived` to everyone in that room
+
+### Redis caching (performance)
+- Feed: `GET /feed` caches results by `user + page + limit` with a short TTL.
+- Profile: `GET /profile/view` caches the logged-in user; `PATCH /profile/edit` invalidates `profile:*` and related `feed:*` caches.
+
+### Payment workflow (Razorpay)
+- `POST /payment/create`: creates a Razorpay order and stores payment metadata in MongoDB.
+- `POST /payment/webhook`: verifies webhook signature, updates payment status by `orderId`, and upgrades the user to premium.
+- `GET /premium/verify`: checks whether the authenticated user is premium.
+
+### Data persistence (MongoDB)
+MongoDB collections are modeled with Mongoose in `src/models`:
+`User`, `ConnectionRequest`, `Chat`, and `Payment`.
 
 ---
 
@@ -233,6 +309,38 @@ Status values:
 - Cloud Deployment
 - Production Debugging & Error Handling
 
+devTinderBack/
+│
+├─ apiList.md               # API route list/notes
+├─ .env                     # Environment variables
+├─ package.json
+├─ README.md
+└─ src/
+   ├─ app.js                # Express app bootstrap
+   ├─ config/
+   │  └─ database.js        # MongoDB connection setup
+   ├─ middlewares/
+   │  ├─ auth.js            # JWT authentication (REST)
+   │  ├─ socketAuth.js      # JWT authentication (Socket.IO)
+   │  ├─ errorHandler.js    # Global error handler
+   │  └─ logger.js          # API request logger
+   ├─ models/
+   │  ├─ user.js           # User schema
+   │  ├─ connectionRequest.js # Connection request schema
+   │  ├─ chat.js           # Chat schema
+   │  └─ payment.js        # Payment schema
+   ├─ routes/
+   │  ├─ auth.js           # Signup/Login/Logout
+   │  ├─ profile.js        # Profile view/edit/password
+   │  ├─ request.js        # Send/Review connection requests
+   │  ├─ user.js           # Feed & connections APIs
+   │  ├─ chat.js           # Real-time chat history APIs
+   │  └─ payment.js        # Razorpay integration
+   └─ utils/
+      ├─ socket.js         # Socket.IO initialization + chat handlers
+      ├─ validation.js     # Request validation helpers
+      └─ razorpay.js       # Razorpay client wrapper
+
 ---
 
 ## 👨‍💻 Author
@@ -240,4 +348,11 @@ Status values:
 Harsh Malik\
 Engineering Student \| Backend Developer\
 Interested in scalable backend systems, real-time architectures, and
-distributed applications.
+distributed applications. -->
+
+
+
+
+ 
+
+
