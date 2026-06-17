@@ -12,7 +12,7 @@ const messageSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const chatSchema = new mongoose.Schema({

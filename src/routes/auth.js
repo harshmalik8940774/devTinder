@@ -2,28 +2,27 @@ const express = require("express");
 const authRouter = express.Router();
 const User = require("../models/user");
 const { validateSignUpData } = require("../utils/validation");
-const bcrypt = require("bcrypt");
 
 //SignUp-API
-authRouter.post("/signup", async (req, res,next) => {
+authRouter.post("/signup", async (req, res, next) => {
   try {
     // Validation of data
     validateSignUpData(req);
 
     const { firstName, lastName, emailId, password } = req.body;
 
-    // Encrypt the password
-    // const passwordHash = await bcrypt.hash(password, 10);
-    const passwordHash = await user.hashPassword(password);
-    console.log(passwordHash);
-
-    //   Creating a new instance of the User model
+    // Creating a new instance of the User model
     const user = new User({
       firstName,
       lastName,
       emailId,
-      password: passwordHash,
     });
+
+    // Encrypt the password
+    const passwordHash = await user.hashPassword(password);
+    console.log(passwordHash);
+
+    user.password = passwordHash;
 
     const savedUser = await user.save();
     const token = await savedUser.getJWT();
@@ -40,7 +39,7 @@ authRouter.post("/signup", async (req, res,next) => {
 });
 
 //Login - API
-authRouter.post("/login", async (req, res,next) => {
+authRouter.post("/login", async (req, res, next) => {
   try {
     const { emailId, password } = req.body;
 

@@ -176,52 +176,82 @@ npm start
 
 ### Architecture diagram
 
-```text
-┌───────────┐  HTTP (cookies + JWT)  ┌────────────────────────┐  Mongo queries  ┌───────────┐
-│  Client   │ ─────────────────────► │ Express (REST routes)  │ ──────────────► │  MongoDB  │
-│  UI/Web   │                          │ middlewares/auth +     │                  │ Mongoose  │
-└───────────┘                          │ errorHandler + routes  │                  └───────────┘
-        ▲                               └───────────┬────────────┘
-        │ Redis cache hit                             │
-        │                                               ▼
-        │                                   ┌────────────────────────┐
-        │                                   │ Redis (feed/profile)   │
-        │                                   └────────────────────────┘
-        │
-        │  Socket.IO connect (token)        ┌────────────────────────┐   read/write   ┌───────────┐
-        └────────────────────────────────► │ Socket.IO + socketAuth│ ─────────────►│  MongoDB  │
-                                           │ joinChat (SHA-256 room)│                 │  Chat +   │
-                                           └───────────┬────────────┘                 │ Connection│
-                                                       │ sendMessage (friend check)
-                                                       ▼
-                                           ┌────────────────────────┐
-                                           │ Chat room (roomId)    │
-                                           └───────────┬────────────┘
-                                                       │ emits messageReceived
-                                                       ▼
-                                             ┌─────────────────────┐
-                                             │ Connected clients   │
-                                             └─────────────────────┘
+```mermaid
+flowchart TD
 
-Payment (Razorpay + webhook):
-┌───────────┐  POST /payment/create   ┌────────────────────────┐  create order  ┌───────────┐
-│  Client   │ ───────────────────────► │ Express (payment route)│ ─────────────►│ Razorpay  │
-└───────────┘                            └───────────┬────────────┘                 └─────┬─────┘
-                                                       │ save Payment (orderId + notes)
-                                                       ▼
-                                                ┌───────────┐
-                                                │  MongoDB   │
-                                                └─────┬─────┘
-                                                      │ POST /payment/webhook (signed)
-                                                      ▼
-                                             ┌────────────────────────┐  verify signature
-                                             │ Express /payment/webhook│◄────────────────── Razorpay
-                                             └───────────┬────────────┘
-                                                         │ update Payment + User.isPremium
-                                                         ▼
-                                                ┌───────────┐
-                                                │  MongoDB   │
-                                                └───────────┘
+%% =========================
+%% Client
+%% =========================
+A[Client Web App]
+
+%% =========================
+%% Backend
+%% =========================
+B[Express.js Server<br/>REST APIs<br/>Auth Middleware<br/>Validation<br/>Error Handler]
+
+%% =========================
+%% Data Layer
+%% =========================
+C[(MongoDB)]
+D[(Redis Cache)]
+
+%% =========================
+%% Payment
+%% =========================
+E[Razorpay]
+
+%% =========================
+%% Realtime
+%% =========================
+F[Socket.IO Server]
+G[Chat Room]
+H[Connected Clients]
+
+%% =========================
+%% Main Flow
+%% =========================
+A -- HTTP<br/>JWT + Cookies --> B
+
+B --> D
+D -- Cache Miss --> C
+C --> D
+D --> A
+
+%% =========================
+%% Socket Flow
+%% =========================
+A -- Socket Connection<br/>JWT --> F
+F -->|socketAuth| G
+G -->|Friend Verification| C
+G -->|Store Messages| C
+G -->|messageReceived| H
+
+%% =========================
+%% Payment Flow
+%% =========================
+A -->|Create Order| B
+B --> E
+E -->|Order Details| B
+B -->|Save Order| C
+
+E -->|Webhook| B
+B -->|Verify Signature| B
+B -->|Update Payment & Premium| C
+
+%% =========================
+%% Styling
+%% =========================
+classDef client fill:#D6EAF8,stroke:#1B4F72,stroke-width:2px;
+classDef backend fill:#FCF3CF,stroke:#B7950B,stroke-width:2px;
+classDef database fill:#D5F5E3,stroke:#196F3D,stroke-width:2px;
+classDef socket fill:#FADBD8,stroke:#922B21,stroke-width:2px;
+classDef payment fill:#EBDEF0,stroke:#6C3483,stroke-width:2px;
+
+class A,H client;
+class B backend;
+class C,D database;
+class E payment;
+class F,G socket;
 ```
 
 ### High-level component responsibilities
